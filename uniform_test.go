@@ -5,7 +5,7 @@ import (
     )
 
 func Test_Update(t *testing.T) {
-    s := NewUniformSample(10)
+    s := NewUniformSampleR(10)
     if (s.Count != 0) {
         t.Fatalf("Uniform Sample count not zero. (got %d)", s.Count)
     }

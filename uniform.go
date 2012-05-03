@@ -17,41 +17,27 @@ This is a reservoir sampling implementation as described in:
     JEFFREY SCOTT VITTER
     http://www.cs.umd.edu/~samir/498/vitter.pdf
 
-The idea is an extension of the algorithm to keep one number from a
-stream of unknown length, which is easy to derive.
-
-Always keep the first number, x1. This solves it for N=1.
-When presented with the second number, x2, you want to keep it 50%
-of the times. So if random() < 1/2, keep x2, else, keep x1.
-Now we have a stream of length 2 where every number will be the one
-selected 1/2 of the time.
-
-Now, generalizing for the induction step, assume you have seen N items and
-you have uniformly choosen one from the previous N. For N+1, you want to keep
-x(N+1) number only 1/(N+1) of the times.
-
-So just do that, if random() < 1/(N+1) keep it.
-
-The other numbers had all 1/N probability of being choosen. You will keep the
-previous selection only in 1-1/(N+1) of the cases. Multiplying the old
-probability by the chance of keeping it we get that the new probability is
-now 1/(N+1) as desired.
-
-Now extend that to to have a reservoir of more than one number.
+"Algorithm R (which is is a reservoir algorithm due to Alan Waterman) works
+as follows: When the (t + 1)st record in the file is being processed, for t >= n, the
+n candidates form a random sample of the first t records. The (t + 1)st record
+has a n/(t + 1) chance of being in a random sample of size n of the first t + 1
+records, and so it is made a candidate with probability n/(t + 1). The candidate
+it replaces is chosen randomly from the n candidates. It is easy to see that the
+resulting set of n candidates forms a random sample of the first t + 1 records."
 
 */
 
-type UniformSample struct {
+type UniformSampleR struct {
     Count int // the number of items seen
     size int // the sample size
     Sample []float64 // the sampled numbers
 }
 
-func NewUniformSample(size int) *UniformSample {
+func NewUniformSampleR(size int) *UniformSampleR {
     if size < 1 {
         return nil
     }
-    s := new(UniformSample)
+    s := new(UniformSampleR)
     s.size = size
     s.Count = 0
     s.Sample = make([]float64, size)
@@ -59,7 +45,7 @@ func NewUniformSample(size int) *UniformSample {
     return s
 }
 
-func (self *UniformSample) Update(value float64) {
+func (self *UniformSampleR) Update(value float64) {
 
     if self.Count >= self.size {
         r := rand.Int() % self.Count
