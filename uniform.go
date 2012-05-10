@@ -53,3 +53,4 @@ func (self *UniformSampleR) Update(value float64) {
 
 	self.Count += 1
 }
+

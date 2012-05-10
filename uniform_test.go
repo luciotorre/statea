@@ -46,3 +46,10 @@ func Test_R_Kolmogorov(t *testing.T) {
 	}
 
 }
+
+func Benchmark_UniformSampleR(t *testing.B) {
+	s := NewUniformSampleR(10)
+	for i := 1; i < 1000000; i++ {
+		s.Update(1)
+	}
+}
