@@ -38,6 +38,13 @@ func Test_WeigthedSample_Kolmogorov(t *testing.T) {
 
 	for i := 0; i < end; i++ {
 		s.Update(float64(i), float64(i))
+		m := s.pq[0].priority
+		for n := range s.pq {
+			if s.pq[n].priority < m {
+				// we depend on this to do peek
+				t.Errorf("Minimum not in first position.")
+			}
+		}
 	}
 
 	sample := s.Sample()
@@ -89,12 +96,10 @@ func Benchmark_WeigthedSample(t *testing.B) {
 func Benchmark_ExponentiallyDecayingSample(t *testing.B) {
 	end := 1000000
 	
-	ts := Now()
 	s := NewExponentiallyDecayingSample(1024, 0.3)
 	start := Now()
 	
 	for i := 0; i < end; i++ {
 		s.Update(float64(i), start + float64(i) / 10000000)
 	}
-	fmt.Printf("duration: %f\n", Now() - ts)
 }

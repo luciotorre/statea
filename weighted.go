@@ -128,12 +128,14 @@ func (self *WeigthedSample) Rescale(scale func(float64) float64) {
 func (self *WeigthedSample) Update(value float64, weight float64) {
 	priority := weight / rand.Float64()
 	if self.Count >= self.size {
-		item := &Item{
-			value:    value,
-			priority: priority,
+		if self.pq[0].priority < priority {
+			item := &Item{
+				value:    value,
+				priority: priority,
+			}
+			heap.Push(&self.pq, item)
+			heap.Pop(&self.pq)
 		}
-		heap.Push(&self.pq, item)
-		heap.Pop(&self.pq)
 	} else {
 		item := &Item{
 			value:    value,
