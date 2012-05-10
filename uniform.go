@@ -1,13 +1,8 @@
-/*
-Package statea provides data structures that calculate summary statistics
-over streams of data sets.
-*/
 package statea
 
 import (
-    "math/rand"
+	"math/rand"
 )
-
 
 /*
 UniformSample keeps a number of items (a sample) from all its updates.
@@ -28,34 +23,33 @@ resulting set of n candidates forms a random sample of the first t + 1 records."
 */
 
 type UniformSampleR struct {
-    Count int // the number of items seen
-    size int // the sample size
-    Sample []float64 // the sampled numbers
+	Count  int       // the number of items seen
+	size   int       // the sample size
+	Sample []float64 // the sampled numbers
 }
 
 func NewUniformSampleR(size int) *UniformSampleR {
-    if size < 1 {
-        return nil
-    }
-    s := new(UniformSampleR)
-    s.size = size
-    s.Count = 0
-    s.Sample = make([]float64, size)
+	if size < 1 {
+		return nil
+	}
+	s := new(UniformSampleR)
+	s.size = size
+	s.Count = 0
+	s.Sample = make([]float64, size)
 
-    return s
+	return s
 }
 
 func (self *UniformSampleR) Update(value float64) {
 
-    if self.Count >= self.size {
-        r := rand.Int() % self.Count
-        if r < self.size {
-            self.Sample[r] = value
-        }
-    } else {
-        self.Sample[self.Count] = value
-    }
+	if self.Count >= self.size {
+		r := rand.Int() % self.Count
+		if r < self.size {
+			self.Sample[r] = value
+		}
+	} else {
+		self.Sample[self.Count] = value
+	}
 
-    self.Count += 1
+	self.Count += 1
 }
-
