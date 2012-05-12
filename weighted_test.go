@@ -3,6 +3,9 @@ package statea
 import (
 	"testing"
 	"fmt"
+	"math"
+	"math/rand"
+	"time"
 )
 
 func Test_WeigthedSample_Update(t *testing.T) {
@@ -93,13 +96,40 @@ func Benchmark_WeigthedSample(t *testing.B) {
 	}
 }
 
-func Benchmark_ExponentiallyDecayingSample(t *testing.B) {
-	end := 1000000
+func Test_ExponentiallyDecayingSample_Kolmogorov(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	end := 10000000
+	scale := 100000.0
+
+	s := NewExponentiallyDecayingSample(1024, 0.3)
+	s.last_t = 0
 	
+	for i := 0; i < end; i++ {
+		s.Update(float64(i)/scale, float64(i)/scale)
+	}
+
+	cdf := func(x float64) float64 {
+		w := math.Exp(0.3 * (x - s.last_t))
+		top_w := math.Exp(0.3 * (float64(end-1)/scale - s.last_t))
+		return w / top_w
+	}
+	sample := s.Sample()
+	D, pvalue := KolmogorovTest(sample, cdf)
+
+	if pvalue < 0.005 {
+		t.Errorf("KolmogorovTest(sample) == %f, D == %f", pvalue, D)
+	}
+	
+}
+
+func Benchmark_ExponentiallyDecayingSample(t *testing.B) {
+	end := 100000
+	now := Now()
 	s := NewExponentiallyDecayingSample(1024, 0.3)
 	start := Now()
 	
 	for i := 0; i < end; i++ {
 		s.Update(float64(i), start + float64(i) / 10000000)
 	}
+	fmt.Printf("duration: %f\n", Now() - now)
 }

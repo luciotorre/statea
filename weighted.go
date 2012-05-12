@@ -147,6 +147,9 @@ func (self *WeigthedSample) Update(value float64, weight float64) {
 	self.Count += 1
 }
 
+/* RESCALE EVERY 10 minutes */
+var  RESCALE_THRESHOLD float64 = 60 * 10
+
 type ExponentiallyDecayingSample struct {
 	last_t float64
 	s *WeigthedSample
@@ -168,7 +171,17 @@ func NewExponentiallyDecayingSample(size int, alpha float64) *ExponentiallyDecay
 	return s
 }
 
+func (self *ExponentiallyDecayingSample) Sample() []float64 {
+	return self.s.Sample()
+}
+
 func (self *ExponentiallyDecayingSample) Update(value float64, timestamp float64) {
+	if timestamp - self.last_t > RESCALE_THRESHOLD {
+		self.s.Rescale(func (value float64) float64 {
+			return value * math.Exp(-self.alpha * (timestamp - self.last_t))
+		})
+		self.last_t = timestamp
+	}
 	w := math.Exp(self.alpha * (timestamp - self.last_t))
 	self.s.Update(value, w)
 }
